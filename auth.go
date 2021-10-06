@@ -18,7 +18,7 @@ func auth(next http.Handler) http.Handler {
 	sessionStore := make(map[string]bool)
 	var storageMutex sync.RWMutex
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session")
+		cookie, err := r.Cookie("chalet")
 		if err != nil {
 			if err != http.ErrNoCookie {
 				log.Println("auth error")
@@ -39,7 +39,7 @@ func auth(next http.Handler) http.Handler {
 		}
 		if present == false {
 			cookie = &http.Cookie{
-				Name:   "session",
+				Name:   "chalet",
 				Path:   "/",
 				MaxAge: 24 * 60 * 60,
 				Value:  uuid.New().String(),

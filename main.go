@@ -9,14 +9,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func FileServer(r *chi.Mux, prefix string, dir string) {
+func fileServer(r *chi.Mux, prefix string, dir string) {
 	r.Mount(prefix, http.StripPrefix(prefix, http.FileServer(http.Dir(dir))))
-	//r.Mount(prefix, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//	w.Write([]byte(r.URL.Path))
-	//}))
-	//r.Route(prefix, func(r chi.Router) {
-	//	r.Handle("/*", http.FileServer(http.Dir(dir)))
-	//})
 }
 
 func main() {
@@ -27,15 +21,15 @@ func main() {
 
 	r.Get("/", routeRoot)
 	r.Get("/api/*", routeAPI)
-	FileServer(r, "/js/", "js")
-	FileServer(r, "/css/", "css")
+	fileServer(r, "/js/", "js")
+	fileServer(r, "/css/", "css")
 
 	//http.Handle("/hello", helloWorldHandler{})
 	//http.Handle("/secureHello", authenticate(helloWorldHandler{}))
 	//http.HandleFunc("/login", handleLogin)
 
-	log.Println("listening in port 3000...")
-	err := http.ListenAndServe(":3000", r)
+	log.Println("listening in port 10753...")
+	err := http.ListenAndServeTLS(":10753", "cert.pem", "privkey.pem", r)
 	log.Fatal(err)
 }
 
