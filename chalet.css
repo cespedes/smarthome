@@ -1,0 +1,17 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.block {
+  display: inline-block;
+  vertical-align: top;
+  margin: 5px;
+  padding: 5px;
+  text-align: center;
+  border: 1px solid grey;
+}
+.block h3 {
+  margin: 0 0 10px;
+}
+.slider {
+  margin: 15px 15px 5px 15px;
+}
