@@ -25,17 +25,11 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(auth)
 
-	r.Get("/", serveFile("index.html"))
-	r.Get("/chalet.css", serveFile("chalet.css"))
-	r.Get("/chalet.js", serveFile("chalet.js"))
+	r.Get("/", serveTemplate("index.html", nil))
+	r.Get("/chalet.css", serveFile("static/chalet.css"))
+	r.Get("/chalet.js", serveFile("static/chalet.js"))
 	serveDir(r, "/img/", "img")
-	// serveDir(r, "/js/", "js")
-	// serveDir(r, "/css/", "css")
 	r.Get("/api/*", routeAPI)
-
-	//http.Handle("/hello", helloWorldHandler{})
-	//http.Handle("/secureHello", authenticate(helloWorldHandler{}))
-	//http.HandleFunc("/login", handleLogin)
 
 	log.Println("listening in port 10753...")
 	err := http.ListenAndServeTLS(":10753", "cert.pem", "privkey.pem", r)

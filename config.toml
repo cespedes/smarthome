@@ -1,0 +1,29 @@
+
+[[rooms]]
+name = "Cocina"
+	[[rooms.blocks]]
+	name = "Persiana de la cocina"
+		[[rooms.blocks.devices]]
+		id   = "persiana-cocina"
+		type = "slider"
+		units = "%"
+		min = 0
+		max = 100
+[[rooms]]
+name = "Salón"
+	[[rooms.blocks]]
+	name = "Persiana del patio"
+		[[rooms.blocks.devices]]
+		id = "persiana-patio"
+		type = "slider"
+		units = "%"
+		min = 0
+		max = 100
+	[[rooms.blocks]]
+	name = "Persiana de la chimenea"
+		[[rooms.blocks.devices]]
+		id = "persiana-patio"
+		type = "slider"
+		units = "%"
+		min = 0
+		max = 100
