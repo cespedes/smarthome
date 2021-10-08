@@ -19,20 +19,30 @@ func serveDir(r *chi.Mux, prefix string, dir string) {
 	r.Mount(prefix, http.StripPrefix(prefix, http.FileServer(http.Dir(dir))))
 }
 
+type server struct {
+	mux    *chi.Mux
+	config *chaletConfig
+}
+
+func (s *server) routes() {
+	s.mux = chi.NewRouter()
+	s.mux.Use(middleware.Logger)
+	s.mux.Use(auth)
+	s.mux.Get("/", serveTemplate("index.html", s.config))
+	s.mux.Get("/chalet.css", serveFile("static/chalet.css"))
+	s.mux.Get("/chalet.js", serveFile("static/chalet.js"))
+	serveDir(s.mux, "/img/", "img")
+	s.mux.Get("/api/*", routeAPI)
+}
+
 func main() {
 	log.Println("chalet-cloud starting")
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(auth)
-
-	r.Get("/", serveTemplate("index.html", nil))
-	r.Get("/chalet.css", serveFile("static/chalet.css"))
-	r.Get("/chalet.js", serveFile("static/chalet.js"))
-	serveDir(r, "/img/", "img")
-	r.Get("/api/*", routeAPI)
+	var s server
+	s.readConfig()
+	s.routes()
 
 	log.Println("listening in port 10753...")
-	err := http.ListenAndServeTLS(":10753", "cert.pem", "privkey.pem", r)
+	err := http.ListenAndServeTLS(":10753", "cert.pem", "privkey.pem", s.mux)
 	log.Fatal(err)
 }
 
