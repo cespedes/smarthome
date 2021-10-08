@@ -9,6 +9,7 @@ name = "Cocina"
 		units = "%"
 		min = 0
 		max = 100
+		physical = "shelly://persiana-cocina/roller/0"
 [[rooms]]
 name = "Salón"
 	[[rooms.blocks]]
@@ -19,6 +20,7 @@ name = "Salón"
 		units = "%"
 		min = 0
 		max = 100
+		physical = "shelly://persiana-patio/roller/0"
 	[[rooms.blocks]]
 	name = "Persiana de la chimenea"
 		[[rooms.blocks.devices]]
@@ -27,3 +29,16 @@ name = "Salón"
 		units = "%"
 		min = 0
 		max = 100
+		physical = "shelly://persiana-chimenea/roller/0"
+[[rooms]]
+name = "Garaje"
+	[[rooms.blocks]]
+	name = "Puerta de la rampa"
+		[[rooms.blocks.devices]]
+		id = "puerta-rampa-open"
+		type = "input"
+		physical = "shelly://puerta-rampa/input/0"
+		[[rooms.blocks.devices]]
+		id = "puerta-rampa-action"
+		type = "button"
+		physical = "shelly://puerta-rampa/relay/0/on"

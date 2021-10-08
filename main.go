@@ -21,7 +21,7 @@ func serveDir(r *chi.Mux, prefix string, dir string) {
 
 type server struct {
 	mux    *chi.Mux
-	config *chaletConfig
+	config chaletConfig
 }
 
 func (s *server) routes() {

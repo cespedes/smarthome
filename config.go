@@ -21,11 +21,12 @@ type configBlock struct {
 }
 
 type configDevice struct {
-	ID    string
-	Type  string
-	Units string
-	Min   int
-	Max   int
+	ID       string
+	Type     string
+	Units    string
+	Min      int
+	Max      int
+	Physical string
 }
 
 func (s *server) readConfig() {
@@ -34,4 +35,11 @@ func (s *server) readConfig() {
 		return
 	}
 	fmt.Printf("%+v\n", s.config)
+	for _, r := range s.config.Rooms {
+		for _, b := range r.Blocks {
+			for _, d := range b.Devices {
+				s.getStatus(d.Physical)
+			}
+		}
+	}
 }
