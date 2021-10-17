@@ -1,4 +1,4 @@
-module cespedes.org/chalet-cloud
+module github.com/cespedes/smarthome
 
 go 1.15
 
@@ -6,4 +6,6 @@ require (
 	github.com/BurntSushi/toml v0.4.1
 	github.com/go-chi/chi/v5 v5.0.4
 	github.com/google/uuid v1.3.0
+	github.com/huin/mqtt v0.0.0-20200914141616-61735481eb15 // indirect
+	github.com/jeffallen/mqtt v0.0.0-20180518073322-5387cfa89df0 // indirect
 )

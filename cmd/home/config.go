@@ -6,7 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type chaletConfig struct {
+type homeConfig struct {
 	Rooms []configRoom
 }
 

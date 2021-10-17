@@ -18,7 +18,7 @@ func auth(next http.Handler) http.Handler {
 	sessionStore := make(map[string]bool)
 	var storageMutex sync.RWMutex
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("chalet")
+		cookie, err := r.Cookie("home")
 		if err != nil {
 			if err != http.ErrNoCookie {
 				log.Println("auth error")
@@ -39,7 +39,7 @@ func auth(next http.Handler) http.Handler {
 		}
 		if present == false {
 			cookie = &http.Cookie{
-				Name:   "chalet",
+				Name:   "home",
 				Path:   "/",
 				MaxAge: 24 * 60 * 60,
 				Value:  uuid.New().String(),
@@ -54,7 +54,7 @@ func auth(next http.Handler) http.Handler {
 			return
 		}
 		log.Println("auth: not logged in, doing BasicAuth")
-		middleware.BasicAuth("Chalet", authCredentials)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		middleware.BasicAuth("home", authCredentials)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log.Println("basic auth: logged in")
 			storageMutex.Lock()
 			sessionStore[cookie.Value] = true

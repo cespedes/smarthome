@@ -21,7 +21,7 @@ func serveDir(r *chi.Mux, prefix string, dir string) {
 
 type server struct {
 	mux    *chi.Mux
-	config chaletConfig
+	config homeConfig
 }
 
 func (s *server) routes() {
@@ -29,14 +29,14 @@ func (s *server) routes() {
 	s.mux.Use(middleware.Logger)
 	s.mux.Use(auth)
 	s.mux.Get("/", serveTemplate("index.html", s.config))
-	s.mux.Get("/chalet.css", serveFile("static/chalet.css"))
-	s.mux.Get("/chalet.js", serveFile("static/chalet.js"))
+	s.mux.Get("/home.css", serveFile("static/home.css"))
+	s.mux.Get("/home.js", serveFile("static/home.js"))
 	serveDir(s.mux, "/img/", "img")
 	s.mux.Get("/api/*", routeAPI)
 }
 
 func main() {
-	log.Println("chalet-cloud starting")
+	log.Println("home starting")
 	var s server
 	s.readConfig()
 	s.routes()
