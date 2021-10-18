@@ -43,7 +43,6 @@ func (i *InfluxClient) Insert(nameTags string, fields map[string]interface{}) er
 		tags[res[0]] = res[1]
 	}
 
-	fmt.Println("foo1")
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  i.database,
 		Precision: "s",
@@ -52,14 +51,12 @@ func (i *InfluxClient) Insert(nameTags string, fields map[string]interface{}) er
 		return err
 	}
 
-	fmt.Println("foo2")
 	pt, err := client.NewPoint(names[0], tags, fields)
 	if err != nil {
 		return err
 	}
 	bp.AddPoint(pt)
 
-	fmt.Println("foo3")
 	return i.c.Write(bp)
 }
 
