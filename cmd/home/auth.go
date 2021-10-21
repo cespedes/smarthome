@@ -19,14 +19,10 @@ func auth(next http.Handler) http.Handler {
 	var storageMutex sync.RWMutex
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("home")
-		if err != nil {
-			if err != http.ErrNoCookie {
-				log.Println("auth error")
-				http.Error(w, err.Error(), 500)
-				return
-			} else {
-				err = nil
-			}
+		if err != nil && err != http.ErrNoCookie {
+			log.Println("auth error")
+			http.Error(w, err.Error(), 500)
+			return
 		}
 		var present bool
 		var client bool
