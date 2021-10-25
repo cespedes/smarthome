@@ -41,12 +41,30 @@ func NewMQTTClient(addr string, root string) (*MQTTClient, error) {
 func (m *MQTTClient) Publish(topic string, payload string) {
 	var err error
 
-	log.Printf("MQTT: Publishing %s/%s=%s\n", m.root, topic, payload)
+	if m.root != "" {
+		topic = fmt.Sprintf("%s/%s", m.root, topic)
+	}
+
+	log.Printf("MQTT: Publishing %s=%s\n", topic, payload)
 	err = m.client.Publish(context.Background(), &mqtt.Message{
-		Topic:   fmt.Sprintf("%s/%s", m.root, topic),
+		Topic:   topic,
 		Payload: []byte(payload),
 	})
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (m *MQTTClient) Subscribe(topic string) chan *mqtt.Message {
+	ch := make(chan *mqtt.Message)
+	m.mux.HandleFunc(topic, func(m *mqtt.Message) {
+		ch <- m
+	})
+
+	_, err := m.client.Subscribe(context.Background(), mqtt.Subscription{Topic: topic})
+	if err != nil {
+		panic(err)
+	}
+
+	return ch
 }

@@ -33,7 +33,6 @@ func main() {
 					log.Printf("Shelly device %s does not have Emeter0\n", s.Host)
 					continue
 				}
-				_ = influx
 				log.Printf("%s: power=%.02f,voltage=%.02f,energy=%.02f\n", s.Emeter0, shelly.Status.Emeters[0].Power, shelly.Status.Emeters[0].Voltage, shelly.Status.Emeters[0].Total)
 				err := influx.Insert(s.Emeter0, map[string]interface{}{
 					"power":   shelly.Status.Emeters[0].Power,

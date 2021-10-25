@@ -37,6 +37,12 @@ func main() {
 					len(shelly.Status.Emeters))
 				mqtt.Publish(fmt.Sprintf("%s/mac", hostname), shelly.Settings.Device.MAC)
 				mqtt.Publish(fmt.Sprintf("%s/type", hostname), shelly.Settings.Device.Type)
+				if shelly.Status.Voltage != 0.0 {
+					mqtt.Publish(fmt.Sprintf("%s/voltage", hostname), fmt.Sprint(shelly.Status.Voltage))
+				}
+				if shelly.Status.Temperature != 0.0 {
+					mqtt.Publish(fmt.Sprintf("%s/temperature", hostname), fmt.Sprint(shelly.Status.Temperature))
+				}
 				for i, input := range shelly.Status.Inputs {
 					mqtt.Publish(fmt.Sprintf("%s/input%d", hostname, i), fmt.Sprint(input.Input))
 				}
