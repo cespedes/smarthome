@@ -27,11 +27,11 @@ type server struct {
 func (s *server) routes() {
 	s.mux = chi.NewRouter()
 	s.mux.Use(middleware.Logger)
-	s.mux.Use(auth)
+	s.mux.Use(s.auth())
 	s.mux.Get("/", serveTemplate("index.html", s.config))
 	s.mux.Get("/home.css", serveFile("static/home.css"))
 	s.mux.Get("/home.js", serveFile("static/home.js"))
-	serveDir(s.mux, "/img/", "img")
+	serveDir(s.mux, "/img/", "static/img")
 	s.mux.Get("/api/*", routeAPI)
 }
 

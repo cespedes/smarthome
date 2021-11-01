@@ -7,6 +7,7 @@ import (
 )
 
 type homeConfig struct {
+	Auth  map[string]string
 	Rooms []configRoom
 }
 
@@ -21,12 +22,15 @@ type configBlock struct {
 }
 
 type configDevice struct {
-	ID       string
-	Type     string
-	Units    string
-	Min      int
-	Max      int
-	Physical string
+	ID         string
+	Type       string
+	Units      string
+	Min        int
+	Max        int
+	Status     string
+	Command    string
+	StatusMap  map[string]string
+	CommandMap map[string]string
 }
 
 func (s *server) readConfig() {
@@ -38,7 +42,9 @@ func (s *server) readConfig() {
 	for _, r := range s.config.Rooms {
 		for _, b := range r.Blocks {
 			for _, d := range b.Devices {
-				s.getStatus(d.Physical)
+				if d.Status != "" {
+					s.getStatus(d.Status)
+				}
 			}
 		}
 	}

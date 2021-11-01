@@ -9,12 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
-var authCredentials map[string]string = map[string]string{
-	"cespedes": "foo",
-}
-
-func auth(next http.Handler) http.Handler {
-	log.Println("auth init")
+func (s *server) authCookieAndBasicAuth(next http.Handler) http.Handler {
+	log.Println("authCookieAndBasicAuth() init")
 	sessionStore := make(map[string]bool)
 	var storageMutex sync.RWMutex
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +46,7 @@ func auth(next http.Handler) http.Handler {
 			return
 		}
 		log.Println("auth: not logged in, doing BasicAuth")
-		middleware.BasicAuth("home", authCredentials)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		middleware.BasicAuth("home", s.config.Auth)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log.Println("basic auth: logged in")
 			storageMutex.Lock()
 			sessionStore[cookie.Value] = true
@@ -59,4 +55,14 @@ func auth(next http.Handler) http.Handler {
 		})).ServeHTTP(w, r)
 		return
 	})
+}
+
+func (s *server) authBasicAuth(next http.Handler) http.Handler {
+	log.Println("authBasicAuth() init")
+	return middleware.BasicAuth("home", s.config.Auth)(next)
+}
+
+func (s *server) auth() func(http.Handler) http.Handler {
+	// return s.authCookieAndBasicAuth
+	return s.authBasicAuth
 }

@@ -24,7 +24,8 @@
   <div class="block">
     <h3>{{ .Name }}</h3>
     {{- range .Devices }}
-    <div id="{{ .ID }}" class="{{ .Type }}">
+    <div class="device">
+      <div id="{{ .ID }}" class="{{ .Type }}"></div>
     </div>
     {{- end }}
   </div>

@@ -12,6 +12,25 @@ body {
 .block h3 {
   margin: 0 0 10px;
 }
+.device {
+  display: inline-block;
+  vertical-align: middle;
+}
 .slider {
+  min-width: 100px;
   margin: 15px 15px 5px 15px;
+}
+
+#puerta-rampa-isopen {
+	border: 3px solid green;
+	height: 1em;
+}
+#puerta-rampa-isopen::before {
+	content: "Estado:";
+	padding-right: 10px;
+}
+
+.button {
+	height: 32px;
+	width: 32px;
 }
