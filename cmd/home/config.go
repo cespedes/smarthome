@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 
-	"github.com/BurntSushi/toml"
+	"gopkg.in/yaml.v2"
 )
 
 type homeConfig struct {
@@ -29,14 +30,17 @@ type configDevice struct {
 	Max        int
 	Status     string
 	Command    string
-	StatusMap  map[string]string
+	StatusMap  map[string]string `yaml:"statusMap"`
 	CommandMap map[string]string
 }
 
-func (s *server) readConfig() {
-	if _, err := toml.DecodeFile("config.toml", &s.config); err != nil {
-		fmt.Println(err)
-		return
+func (s *server) readConfig() error {
+	data, err := ioutil.ReadFile("config.yaml")
+	if err != nil {
+		return fmt.Errorf("reading config.yaml: %w", err)
+	}
+	if err := yaml.UnmarshalStrict(data, &s.config); err != nil {
+		return fmt.Errorf("parsing config.yaml: %w", err)
 	}
 	fmt.Printf("%+v\n", s.config)
 	for _, r := range s.config.Rooms {
@@ -48,4 +52,5 @@ func (s *server) readConfig() {
 			}
 		}
 	}
+	return nil
 }

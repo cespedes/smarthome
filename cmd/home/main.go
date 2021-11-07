@@ -38,7 +38,9 @@ func (s *server) routes() {
 func main() {
 	log.Println("home starting")
 	var s server
-	s.readConfig()
+	if err := s.readConfig(); err != nil {
+		log.Fatal(err)
+	}
 	s.routes()
 
 	log.Println("listening in port 10753...")
