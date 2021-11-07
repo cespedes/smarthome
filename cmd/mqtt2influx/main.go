@@ -54,10 +54,12 @@ func main() {
 		if t, ok := topics[myTopic]; ok {
 			v := number(string(m.Payload))
 			log.Printf("Writing to Influx: (%s %s=%v (%T))", t.nameTag, t.field, v, v)
-			err := influx.Insert(t.nameTag, map[string]interface{}{t.field: v})
-			if err != nil {
-				log.Println(err)
-			}
+			go func() {
+				err := influx.Insert(t.nameTag, map[string]interface{}{t.field: v})
+				if err != nil {
+					log.Printf("Writing to influx (%s %s=%v): %s", t.nameTag, t.field, v, err.Error())
+				}
+			}()
 		}
 	}
 }

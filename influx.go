@@ -3,6 +3,7 @@ package smarthome
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/influxdata/influxdb/client/v2"
 )
@@ -12,9 +13,9 @@ type InfluxClient struct {
 	database string
 }
 
-//		Addr:     "https://kermit.cespedes.org:8086",
+//		Addr:     "https://example.com:8086",
 //		Username: "admin",
-//		Password: "daemae9A",
+//		Password: "secret",
 
 func NewInfluxClient(addr string, user string, pass string, database string) (*InfluxClient, error) {
 	var influxClient InfluxClient
@@ -51,7 +52,7 @@ func (i *InfluxClient) Insert(nameTags string, fields map[string]interface{}) er
 		return err
 	}
 
-	pt, err := client.NewPoint(names[0], tags, fields)
+	pt, err := client.NewPoint(names[0], tags, fields, time.Now())
 	if err != nil {
 		return err
 	}
