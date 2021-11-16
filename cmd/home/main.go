@@ -33,6 +33,7 @@ func (s *server) routes() {
 	s.mux.Get("/home.js", serveFile("static/home.js"))
 	serveDir(s.mux, "/img/", "static/img")
 	s.mux.Get("/api/*", routeAPI)
+	s.mux.Get("/status", s.getStatus)
 }
 
 func main() {

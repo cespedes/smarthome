@@ -47,7 +47,7 @@ func (s *server) readConfig() error {
 		for _, b := range r.Blocks {
 			for _, d := range b.Devices {
 				if d.Status != "" {
-					s.getStatus(d.Status)
+					s.prepareStatus(d.Status)
 				}
 			}
 		}
