@@ -1,10 +1,7 @@
 package smarthome
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 )
 
 type ShellyInfo struct {
@@ -158,19 +155,10 @@ type ShellyStatus struct {
 }
 
 func ShellyGetInfo(host string) (*ShellyInfo, error) {
-	resp1, err := http.Get(fmt.Sprintf("http://%s/settings", host))
-	if err != nil {
-		return nil, err
-	}
-	defer resp1.Body.Close()
-	body, err := io.ReadAll(resp1.Body)
-	if err != nil {
-		return nil, err
-	}
-
+	var err error
 	var shelly ShellyInfo
 
-	err = json.Unmarshal(body, &shelly.Settings)
+	err = HTTPtoJSON(fmt.Sprintf("http://%s/settings", host), &shelly.Settings)
 	if err != nil {
 		return nil, err
 	}
@@ -178,17 +166,7 @@ func ShellyGetInfo(host string) (*ShellyInfo, error) {
 	// fmt.Printf("smarthome.ShellyInfo(): rawSettings=%v\n", string(body))
 	// fmt.Printf("smarthome.ShellyInfo(): settings=%+v\n", shelly.Settings)
 
-	resp2, err := http.Get(fmt.Sprintf("http://%s/status", host))
-	if err != nil {
-		return nil, err
-	}
-	defer resp2.Body.Close()
-	body, err = io.ReadAll(resp2.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(body, &shelly.Status)
+	err = HTTPtoJSON(fmt.Sprintf("http://%s/status", host), &shelly.Status)
 	if err != nil {
 		return nil, err
 	}

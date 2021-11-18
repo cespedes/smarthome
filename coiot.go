@@ -33,6 +33,7 @@ type CoIoTpacket struct {
 	Token      []byte
 	Options    []CoIoToption
 	Payload    []byte
+	Path       []string
 }
 
 func CoIoTinit() (*CoIoT, error) {
@@ -73,6 +74,9 @@ func (c *CoIoT) Read() *CoIoTpacket {
 	p.Token = data[4:n]
 	var lastNumber = 0
 	for {
+		if n >= len(data) {
+			break
+		}
 		if data[n] == 0xFF {
 			n++
 			break
@@ -105,6 +109,13 @@ func (c *CoIoT) Read() *CoIoTpacket {
 	p.Payload = data[n:]
 
 	for _, o := range p.Options {
+		if o.Number < 11 {
+			continue
+		}
+		if o.Number > 11 {
+			break
+		}
+		p.Path = append(p.Path, string(o.Value))
 	}
 
 	if p.Code[0] != 0 || p.Code[1] != 30 { // unsupported CoIoT code
