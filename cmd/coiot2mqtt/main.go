@@ -116,12 +116,18 @@ func main() {
 				for _, state := range server.States {
 					if id == state.ID {
 						topic := fmt.Sprintf("%s/%s/%s", server.Hostname, state.Block, state.Name)
+						msg := fmt.Sprint(value)
 						if state.Unit != "" {
 							topic = fmt.Sprintf("%s/%s", topic, state.Unit)
+							msg = fmt.Sprintf("%f", value)
+							for msg[len(msg)-1] == '0' && msg[len(msg)-2] != '.' {
+								msg = msg[0:len(msg)-1]
+							}
+
 						}
 						topic = fmt.Sprintf("coiot/%s", topic)
-						message := fmt.Sprint(value)
-						mqtt.Publish(topic, message)
+						mqtt.Publish(topic, msg)
+						_ = mqtt
 						break
 					}
 				}
