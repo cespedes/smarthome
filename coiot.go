@@ -106,7 +106,9 @@ func (c *CoIoT) Read() *CoIoTpacket {
 		p.Options = append(p.Options, o)
 		n += length
 	}
-	p.Payload = data[n:]
+	if n < len(data) {
+		p.Payload = data[n:]
+	}
 
 	for _, o := range p.Options {
 		if o.Number < 11 {
@@ -118,11 +120,13 @@ func (c *CoIoT) Read() *CoIoTpacket {
 		p.Path = append(p.Path, string(o.Value))
 	}
 
+	/*
 	if p.Code[0] != 0 || p.Code[1] != 30 { // unsupported CoIoT code
 		return &p
 	}
 	if p.Version != 2 { // unsupported CoIoT version
 		return &p
 	}
+	*/
 	return &p
 }
