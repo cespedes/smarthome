@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/cespedes/smarthome"
@@ -13,6 +15,13 @@ type server struct {
 }
 
 func main() {
+	// If the file doesn't exist, create it or append to the file
+	logfile, err := os.OpenFile("mqtt.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.SetOutput(io.MultiWriter(os.Stdout, logfile))
+
 	log.Println("mqtt2log starting")
 	var s server
 	if err := s.readConfig(); err != nil {
