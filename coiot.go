@@ -62,6 +62,10 @@ func (c *CoIoT) Read() *CoIoTpacket {
 	}
 	data = data[:n]
 
+	if n < 4 { // short packet
+		return c.Read()
+	}
+
 	var p CoIoTpacket
 	p.RemoteAddr = remoteAddr
 	p.Version = int(data[0] >> 6)
