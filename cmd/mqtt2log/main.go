@@ -1,17 +1,50 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
+	"text/template"
 
 	"github.com/cespedes/smarthome"
 )
 
 type server struct {
 	config typeConfig
+}
+
+// parseValue tries to parse s as JSON and returns it.
+// If it is not a valid JSON, it returns s.
+func parseValue(s string) interface{} {
+	var parsed interface{}
+	err := json.Unmarshal([]byte(s), &parsed)
+	if err != nil {
+		return s
+	}
+	return parsed
+}
+
+func writeLog(message string, value string) {
+	if strings.Contains(message, "{{") {
+		tmpl, err := template.New("").Parse(message)
+		if err != nil {
+			log.Printf("error parsing template %q: %s", message, err.Error())
+			return
+		}
+		var b bytes.Buffer
+		parsed := parseValue(value)
+		err = tmpl.Execute(&b, parsed)
+		if err != nil {
+			log.Printf("error executing template %q with value %v: %s", message, parsed, err.Error())
+			return
+		}
+		message = b.String()
+	}
+	log.Printf("Log: %s\n", message)
 }
 
 func main() {
@@ -48,9 +81,9 @@ func main() {
 		oldStatus[topic] = value
 		if table, ok := s.config.Topics[topic]; ok {
 			if message, ok := table[value]; ok {
-				log.Printf("Log: %s\n", message)
-			} else if message, ok := table["_"]; ok {
-				log.Printf("Log: %s\n", strings.ReplaceAll(message, "_", value))
+				writeLog(message, value)
+			} else if message, ok := table["."]; ok {
+				writeLog(message, value)
 			}
 		}
 	}
