@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
@@ -16,6 +17,8 @@ type typeConfig struct {
 }
 
 func (s *server) readConfig() error {
+	log.Println("Reading config file")
+	s.config = typeConfig{}
 	data, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
 		return fmt.Errorf("reading config.yaml: %w", err)
