@@ -7,7 +7,9 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"text/template"
 
 	"github.com/cespedes/smarthome"
