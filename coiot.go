@@ -125,12 +125,12 @@ func (c *CoIoT) Read() *CoIoTpacket {
 	}
 
 	/*
-	if p.Code[0] != 0 || p.Code[1] != 30 { // unsupported CoIoT code
-		return &p
-	}
-	if p.Version != 2 { // unsupported CoIoT version
-		return &p
-	}
+		if p.Code[0] != 0 || p.Code[1] != 30 { // unsupported CoIoT code
+			return &p
+		}
+		if p.Version != 2 { // unsupported CoIoT version
+			return &p
+		}
 	*/
 	return &p
 }

@@ -121,7 +121,7 @@ func main() {
 							topic = fmt.Sprintf("%s/%s", topic, state.Unit)
 							msg = fmt.Sprintf("%f", value)
 							for msg[len(msg)-1] == '0' && msg[len(msg)-2] != '.' {
-								msg = msg[0:len(msg)-1]
+								msg = msg[0 : len(msg)-1]
 							}
 
 						}
