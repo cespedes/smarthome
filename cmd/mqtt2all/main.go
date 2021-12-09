@@ -134,30 +134,32 @@ func main() {
 		log.Fatal(err)
 	}
 
-	oldStatus := make(map[string]string)
+	oldLog := make(map[string]string)
 	for {
 		select {
 		case m := <-s.mqttChan:
 			topic := m.Topic
 			value := string(m.Payload)
-			if value == oldStatus[topic] {
-				continue
-			}
-			oldStatus[topic] = value
-			if topic, ok := s.config.Topics[topic]; ok {
-				if topic.Log != "" {
-					//writeLog(topic.Log, value)
-					s.writeLog(tmpl(topic.Log, value))
-					log.Printf("LOG: %q", tmpl(topic.Log, value))
+			if conf, ok := s.config.Topics[topic]; ok {
+				if conf.Log != "" {
+					v := tmpl(conf.Log, value)
+					if v != oldLog[topic] {
+						oldLog[topic] = v
+						s.writeLog(v)
+						log.Printf("LOG: %q", v)
+					}
 				}
-				if message, ok := topic.Logs[value]; ok {
-					//writeLog(message, value)
-					s.writeLog(tmpl(message, value))
-					log.Printf("LOG: %q", tmpl(message, value))
+				if message, ok := conf.Logs[value]; ok {
+					v := tmpl(message, value)
+					if v != oldLog[topic] {
+						oldLog[topic] = v
+						s.writeLog(v)
+						log.Printf("LOG: %q", v)
+					}
 				}
-				if topic.Influx != "" {
-					log.Printf("INFLUX: %q", tmpl(topic.Influx, value))
-					err := s.influx.InsertLine(tmpl(topic.Influx, value))
+				if conf.Influx != "" {
+					log.Printf("INFLUX: %q", tmpl(conf.Influx, value))
+					err := s.influx.InsertLine(tmpl(conf.Influx, value))
 					if err != nil {
 						log.Printf("Error: %s", err.Error())
 					}
