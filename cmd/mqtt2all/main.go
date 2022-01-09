@@ -134,27 +134,36 @@ func main() {
 		log.Fatal(err)
 	}
 
-	oldLog := make(map[string]string)
+	oldValues := make(map[string]string)
 	for {
 		select {
 		case m := <-s.mqttChan:
 			topic := m.Topic
 			value := string(m.Payload)
 			if conf, ok := s.config.Topics[topic]; ok {
-				if conf.Log != "" {
-					v := tmpl(conf.Log, value)
-					if v != oldLog[topic] {
-						oldLog[topic] = v
+				if conf.Changed != "" {
+					old, ok := oldValues[topic]
+					if ok && value != old {
+						v := tmpl(conf.Changed, value)
 						s.writeLog(v)
 						log.Printf("LOG: %q", v)
 					}
+					oldValues[topic] = value
 				}
-				if message, ok := conf.Logs[value]; ok {
-					v := tmpl(message, value)
-					if v != oldLog[topic] {
-						oldLog[topic] = v
+				if conf.Log != "" {
+					if value != oldValues[topic] {
+						v := tmpl(conf.Log, value)
 						s.writeLog(v)
 						log.Printf("LOG: %q", v)
+						oldValues[topic] = value
+					}
+				}
+				if message, ok := conf.Logs[value]; ok {
+					if value != oldValues[topic] {
+						v := tmpl(message, value)
+						s.writeLog(v)
+						log.Printf("LOG: %q", v)
+						oldValues[topic] = value
 					}
 				}
 				if conf.Influx != "" {

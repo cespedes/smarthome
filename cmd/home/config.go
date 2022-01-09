@@ -8,21 +8,32 @@ import (
 )
 
 type homeConfig struct {
-	Auth  map[string]string
-	Rooms []configRoom
+	Auth    map[string]string
+	MQTT    interface{} `yaml:"mqtt"`
+	Devices []Device
+	Rooms   []Room
 }
 
-type configRoom struct {
+type Device struct {
+	ID     string
+	Input  string   // MQTT topic where status is published
+	Min    int      // Minimum possible value
+	Max    int      // Maximum possible value
+	Values []string // List of possible values
+	Output string   // MQTT topic where we can publish to perform an action
+}
+
+type Room struct {
 	Name   string
-	Blocks []configBlock
+	Blocks []roomBlock
 }
 
-type configBlock struct {
+type roomBlock struct {
 	Name    string
-	Devices []configDevice
+	Devices []blockDevice
 }
 
-type configDevice struct {
+type blockDevice struct {
 	ID         string
 	Type       string
 	Units      string

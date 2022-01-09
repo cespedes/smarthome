@@ -24,9 +24,10 @@ type typeConfig struct {
 		Prefix   string
 	}
 	Topics map[string]struct {
-		Log    string
-		Logs   map[string]string
-		Influx string
+		Changed string
+		Log     string
+		Logs    map[string]string
+		Influx  string
 	}
 }
 
