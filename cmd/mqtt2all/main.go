@@ -143,19 +143,18 @@ func main() {
 			if conf, ok := s.config.Topics[topic]; ok {
 				if conf.Changed != "" {
 					old, ok := oldValues[topic]
+					// log.Printf("XXX: topic=%q value=%q conf.Changed=%q oldValue=%q", topic, value, conf.Changed, old)
 					if ok && value != old {
 						v := tmpl(conf.Changed, value)
 						s.writeLog(v)
 						log.Printf("LOG: %q", v)
 					}
-					oldValues[topic] = value
 				}
 				if conf.Log != "" {
 					if value != oldValues[topic] {
 						v := tmpl(conf.Log, value)
 						s.writeLog(v)
 						log.Printf("LOG: %q", v)
-						oldValues[topic] = value
 					}
 				}
 				if message, ok := conf.Logs[value]; ok {
@@ -163,7 +162,6 @@ func main() {
 						v := tmpl(message, value)
 						s.writeLog(v)
 						log.Printf("LOG: %q", v)
-						oldValues[topic] = value
 					}
 				}
 				if conf.Influx != "" {
@@ -174,6 +172,7 @@ func main() {
 					}
 				}
 			}
+			oldValues[topic] = value
 		case <-signalChan:
 			log.Println("SIGHUP received")
 			if err := s.init(); err != nil {
