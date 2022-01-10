@@ -23,11 +23,10 @@ type typeConfig struct {
 		Filename string
 		Prefix   string
 	}
-	Topics map[string]struct {
-		Changed string
-		Log     string
-		Logs    map[string]string
-		Influx  string
+	Topics map[string]map[string]struct {
+		Log    string
+		Influx string
+		Exec   string
 	}
 }
 

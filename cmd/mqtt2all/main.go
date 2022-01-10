@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"text/template"
 	"time"
@@ -68,11 +70,6 @@ func tmpl(t string, v string) string {
 	return b.String()
 }
 
-func (s *server) foo() {
-	log.Printf("Log filename: %q", tmpl(s.config.Logs.Filename, ""))
-	log.Printf("Log prefix: %q", tmpl(s.config.Logs.Prefix, ""))
-}
-
 // parseValue tries to parse s as JSON and returns it.
 // If it is not a valid JSON, it returns s.
 func parseValue(s string) interface{} {
@@ -112,7 +109,8 @@ func (s *server) init() error {
 		return err
 	}
 	log.Printf("CONFIG: %+v", s.config)
-	s.foo()
+	log.Printf("Log filename: %q", tmpl(s.config.Logs.Filename, ""))
+	log.Printf("Log prefix: %q", tmpl(s.config.Logs.Prefix, ""))
 	if err := s.mqttInit(); err != nil {
 		return err
 	}
@@ -140,36 +138,45 @@ func main() {
 		case m := <-s.mqttChan:
 			topic := m.Topic
 			value := string(m.Payload)
-			if conf, ok := s.config.Topics[topic]; ok {
-				if conf.Changed != "" {
-					old, ok := oldValues[topic]
-					// log.Printf("XXX: topic=%q value=%q conf.Changed=%q oldValue=%q", topic, value, conf.Changed, old)
-					if ok && value != old {
-						v := tmpl(conf.Changed, value)
-						s.writeLog(v)
-						log.Printf("LOG: %q", v)
-					}
+			if _, ok := s.config.Topics[topic]; !ok {
+				continue
+			}
+			if value == oldValues[topic] { // do not repeat old values
+				continue
+			}
+			different := false
+			if old, ok := oldValues[topic]; ok && value != old {
+				different = true
+			}
+			list := []string{".", value}
+			if different {
+				list = append(list, "/=")
+			}
+			conf := s.config.Topics[topic]
+			for _, l := range list {
+				st, ok := conf[l]
+				if !ok {
+					continue
 				}
-				if conf.Log != "" {
-					if value != oldValues[topic] {
-						v := tmpl(conf.Log, value)
-						s.writeLog(v)
-						log.Printf("LOG: %q", v)
-					}
+				if value != oldValues[topic] && st.Log != "" {
+					v := tmpl(st.Log, value)
+					s.writeLog(v)
+					log.Printf("LOG: %q", v)
 				}
-				if message, ok := conf.Logs[value]; ok {
-					if value != oldValues[topic] {
-						v := tmpl(message, value)
-						s.writeLog(v)
-						log.Printf("LOG: %q", v)
-					}
-				}
-				if conf.Influx != "" {
-					log.Printf("INFLUX: %q", tmpl(conf.Influx, value))
-					err := s.influx.InsertLine(tmpl(conf.Influx, value))
+				if st.Influx != "" {
+					v := tmpl(st.Influx, value)
+					log.Printf("INFLUX: %q", v)
+					err := s.influx.InsertLine(v)
 					if err != nil {
 						log.Printf("Error: %s", err.Error())
 					}
+				}
+				if st.Exec != "" {
+					v := tmpl(st.Exec, value)
+					log.Printf("EXEC: %q", v)
+					arguments := strings.Split(v, " ")
+					cmd := exec.Command(arguments[0], arguments[1:]...)
+					cmd.Run()
 				}
 			}
 			oldValues[topic] = value
