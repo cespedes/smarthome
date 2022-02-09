@@ -3,7 +3,8 @@ package smarthome
 import (
 	"context"
 	"fmt"
-	"log"
+	"math/rand"
+	"time"
 
 	"github.com/at-wat/mqtt-go"
 )
@@ -18,17 +19,18 @@ func NewMQTTClient(addr string, root string) (*MQTTClient, error) {
 	var m MQTTClient
 	var err error
 
-	log.Printf("MQTT: Connecting to server %q...", addr)
+	// log.Printf("MQTT: Connecting to server %q...", addr)
 	m.client, err = mqtt.NewReconnectClient(&mqtt.URLDialer{URL: addr})
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = m.client.Connect(context.Background(), "")
+	rand.Seed(time.Now().UnixNano())
+	_, err = m.client.Connect(context.Background(), fmt.Sprint(rand.Uint64()))
 	if err != nil {
 		return nil, err
 	}
-	log.Println("MQTT: Connected.")
+	// log.Println("MQTT: Connected.")
 
 	m.mux = &mqtt.ServeMux{}
 	m.client.Handle(m.mux)
@@ -45,7 +47,7 @@ func (m *MQTTClient) Publish(topic string, payload string) {
 		topic = fmt.Sprintf("%s/%s", m.root, topic)
 	}
 
-	log.Printf("MQTT: Publishing %s=%s\n", topic, payload)
+	// log.Printf("MQTT: Publishing %s=%s\n", topic, payload)
 	err = m.client.Publish(context.Background(), &mqtt.Message{
 		Topic:   topic,
 		Payload: []byte(payload),

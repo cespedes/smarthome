@@ -40,7 +40,7 @@ func CoIoTinit() (*CoIoT, error) {
 	var c CoIoT
 	var err error
 
-	log.Printf("CoIoT: listening on UDP port %d.", coiotPort)
+	// log.Printf("CoIoT: listening on UDP port %d.", coiotPort)
 	c.conn, err = net.ListenUDP("udp", &net.UDPAddr{Port: coiotPort})
 	if err != nil {
 		return nil, err

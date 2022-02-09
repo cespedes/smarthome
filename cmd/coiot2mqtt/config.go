@@ -1,26 +1,37 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/BurntSushi/toml"
+	"flag"
+	"log"
+	"strings"
 )
 
 type config struct {
-	MQTT struct {
-		Addr string
-		Root string
-	}
+	Debug      bool
+	MQTTServer string
+	MQTTPrefix string
 }
 
 func readConfig() *config {
 	var c config
-	if _, err := toml.DecodeFile("config.toml", &c); err != nil {
-		fmt.Println(err)
-		return nil
+	flag.BoolVar(&c.Debug, "debug", false, "Debugging")
+	flag.StringVar(&c.MQTTServer, "mqtt", "", "MQTT server")
+	flag.StringVar(&c.MQTTPrefix, "mqtt-prefix", "coiot", "MQTT prefix to use")
+	flag.Parse()
+
+	if c.Debug {
+		log.Printf("config = %+v\n", c)
 	}
-	if c.MQTT.Root == "" {
-		c.MQTT.Root = "coiot"
+	if c.MQTTServer == "" {
+		log.Fatal("No MQTT server specified")
 	}
+
+	if !strings.Contains(c.MQTTServer, ":") {
+		c.MQTTServer += ":1883"
+	}
+	if !strings.Contains(c.MQTTServer, "://") {
+		c.MQTTServer = "mqtt://" + c.MQTTServer
+	}
+
 	return &c
 }
