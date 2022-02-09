@@ -19,5 +19,8 @@ func readConfig() *config {
 		fmt.Println(err)
 		return nil
 	}
+	if c.MQTT.Root == "" {
+		c.MQTT.Root = "coiot"
+	}
 	return &c
 }

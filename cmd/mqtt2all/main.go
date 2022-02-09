@@ -141,9 +141,6 @@ func main() {
 			if _, ok := s.config.Topics[topic]; !ok {
 				continue
 			}
-			if value == oldValues[topic] { // do not repeat old values
-				continue
-			}
 			different := false
 			if old, ok := oldValues[topic]; ok && value != old {
 				different = true
@@ -158,7 +155,7 @@ func main() {
 				if !ok {
 					continue
 				}
-				if value != oldValues[topic] && st.Log != "" {
+				if value != oldValues[topic] && st.Log != "" { // do not log if repeat values
 					v := tmpl(st.Log, value)
 					s.writeLog(v)
 					log.Printf("LOG: %q", v)
@@ -171,7 +168,7 @@ func main() {
 						log.Printf("Error: %s", err.Error())
 					}
 				}
-				if st.Exec != "" {
+				if value != oldValues[topic] && st.Exec != "" { // do not exec if repeat values
 					v := tmpl(st.Exec, value)
 					log.Printf("EXEC: %q", v)
 					arguments := strings.Split(v, " ")

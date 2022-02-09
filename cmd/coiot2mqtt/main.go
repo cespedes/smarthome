@@ -125,7 +125,6 @@ func main() {
 							}
 
 						}
-						topic = fmt.Sprintf("coiot/%s", topic)
 						mqtt.Publish(topic, msg)
 						_ = mqtt
 						break

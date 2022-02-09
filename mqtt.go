@@ -56,6 +56,10 @@ func (m *MQTTClient) Publish(topic string, payload string) {
 }
 
 func (m *MQTTClient) Subscribe(topic string) chan *mqtt.Message {
+	if m.root != "" {
+		topic = fmt.Sprintf("%s/%s", m.root, topic)
+	}
+
 	ch := make(chan *mqtt.Message)
 	m.mux.HandleFunc(topic, func(m *mqtt.Message) {
 		ch <- m
