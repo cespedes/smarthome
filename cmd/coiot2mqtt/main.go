@@ -145,6 +145,9 @@ func main() {
 
 	for {
 		d := coiot.Read()
+		if conf.Debug {
+			log.Printf("CoIoT packet from %s: %q\n", d.RemoteAddr, d.Payload)
+		}
 		if d.Code[0] != 0 || d.Code[1] != 30 {
 			// this is not a CoIoT packet
 			continue
@@ -210,7 +213,7 @@ func main() {
 			lock.Unlock()
 		}
 		if conf.Debug {
-			log.Printf("Packet from %s (%s)", d.RemoteAddr.IP, server.Hostname)
+			log.Printf("Valid CoIoT packet from %s (%s)", d.RemoteAddr.IP, server.Hostname)
 		}
 		var citS struct {
 			G [][]interface{}

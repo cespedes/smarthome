@@ -81,6 +81,16 @@ func parseValue(s string) interface{} {
 	return parsed
 }
 
+func writeFile(filename, prefix, message string) {
+	os.MkdirAll(filepath.Dir(filename), 0777)
+	logFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Fprintf(logFile, "%s %s\n", prefix, message)
+	logFile.Close()
+}
+
 func (s *server) writeLog(message string) {
 	filename := tmpl(s.config.Logs.Filename, "")
 	prefix := tmpl(s.config.Logs.Prefix, "")
@@ -95,6 +105,12 @@ func (s *server) writeLog(message string) {
 		s.logFileName = filename
 	}
 	fmt.Fprintf(s.logFile, "%s %s\n", prefix, message)
+}
+
+func (s *server) writeDebug(message string) {
+	filename := tmpl(s.config.Debug.Filename, "")
+	prefix := tmpl(s.config.Debug.Prefix, "")
+	writeFile(filename, prefix, message)
 }
 
 func (s *server) influxInit() error {
@@ -121,7 +137,7 @@ func (s *server) init() error {
 }
 
 func main() {
-	log.Println("mqtt2log starting")
+	log.Println("mqtt2all starting")
 
 	// SIGHUP handling:
 	signalChan := make(chan os.Signal, 1)
@@ -159,6 +175,11 @@ func main() {
 					v := tmpl(st.Log, value)
 					s.writeLog(v)
 					log.Printf("LOG: %q", v)
+				}
+				if value != oldValues[topic] && st.Debug != "" { // do not log if repeat values
+					v := tmpl(st.Debug, value)
+					s.writeDebug(v)
+					log.Printf("DEBUG: %q", v)
 				}
 				if st.Influx != "" {
 					v := tmpl(st.Influx, value)

@@ -23,8 +23,13 @@ type typeConfig struct {
 		Filename string
 		Prefix   string
 	}
+	Debug struct {
+		Filename string
+		Prefix   string
+	}
 	Topics map[string]map[string]struct {
 		Log    string
+		Debug  string
 		Influx string
 		Exec   string
 	}
