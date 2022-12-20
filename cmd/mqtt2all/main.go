@@ -34,7 +34,7 @@ func (s *server) mqttInit() error {
 	var err error
 	log.Println("Creating MQTT client...")
 	mqttAddr := fmt.Sprintf("mqtt://%s:%d", s.config.MQTT.Server, s.config.MQTT.Port)
-	s.mqttClient, err = smarthome.NewMQTTClient(mqttAddr, "")
+	s.mqttClient, err = smarthome.NewMQTTClient(mqttAddr)
 	if err != nil {
 		return err
 	}

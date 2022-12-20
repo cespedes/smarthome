@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"net/url"
 	"time"
 
 	"github.com/at-wat/mqtt-go"
@@ -15,9 +16,18 @@ type MQTTClient struct {
 	root   string
 }
 
-func NewMQTTClient(addr string, root string) (*MQTTClient, error) {
+func NewMQTTClient(addr string) (*MQTTClient, error) {
 	var m MQTTClient
 	var err error
+
+	u, err := url.Parse(addr)
+	if err != nil {
+		return nil, err
+	}
+	root := ""
+	if len(u.Path) > 0 && u.Path[0] == '/' {
+		root = u.Path[1:]
+	}
 
 	// log.Printf("MQTT: Connecting to server %q...", addr)
 	m.client, err = mqtt.NewReconnectClient(&mqtt.URLDialer{URL: addr})

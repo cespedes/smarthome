@@ -13,7 +13,7 @@ func main() {
 	c := readConfig()
 
 	log.Println("Creating MQTT client...")
-	mqtt, err := smarthome.NewMQTTClient(c.MQTT.Addr, c.MQTT.Root)
+	mqtt, err := smarthome.NewMQTTClient(c.MQTT.Addr)
 	if err != nil {
 		log.Fatal(err)
 	}

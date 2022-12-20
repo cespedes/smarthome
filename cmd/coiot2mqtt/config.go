@@ -9,14 +9,12 @@ import (
 type config struct {
 	Debug      bool
 	MQTTServer string
-	MQTTPrefix string
 }
 
 func readConfig() *config {
 	var c config
 	flag.BoolVar(&c.Debug, "debug", false, "Debugging")
-	flag.StringVar(&c.MQTTServer, "mqtt", "", "MQTT server")
-	flag.StringVar(&c.MQTTPrefix, "mqtt-prefix", "coiot", "MQTT prefix to use")
+	flag.StringVar(&c.MQTTServer, "mqtt", "", "MQTT server and prefix (mqtt://host:port/prefix)")
 	flag.Parse()
 
 	if c.Debug {

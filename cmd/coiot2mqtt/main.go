@@ -35,7 +35,7 @@ func main() {
 	if conf.Debug {
 		log.Println("Creating MQTT client...")
 	}
-	mqtt, err := smarthome.NewMQTTClient(conf.MQTTServer, conf.MQTTPrefix)
+	mqtt, err := smarthome.NewMQTTClient(conf.MQTTServer)
 	if err != nil {
 		log.Fatal(err)
 	}

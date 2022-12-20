@@ -10,7 +10,6 @@ type config struct {
 	Interval int
 	MQTT     struct {
 		Addr string
-		Root string
 	}
 	Shelly []struct {
 		Host string
