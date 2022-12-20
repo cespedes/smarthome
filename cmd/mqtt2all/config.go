@@ -19,6 +19,10 @@ type typeConfig struct {
 		Pass     string
 		Database string
 	}
+	Postgres struct {
+		Connect string
+		Schema  string
+	}
 	Logs struct {
 		Filename string
 		Prefix   string
@@ -28,10 +32,11 @@ type typeConfig struct {
 		Prefix   string
 	}
 	Topics map[string]map[string]struct {
-		Log    string
-		Debug  string
-		Influx string
-		Exec   string
+		Log      string
+		Debug    string
+		Influx   string
+		Postgres string
+		Exec     string
 	}
 }
 

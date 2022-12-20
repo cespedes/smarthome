@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/at-wat/mqtt-go"
 	"github.com/cespedes/smarthome"
+	_ "github.com/lib/pq"
 )
 
 type server struct {
@@ -25,6 +27,7 @@ type server struct {
 	mqttClient  *smarthome.MQTTClient
 	mqttChan    chan *mqtt.Message
 	influx      *smarthome.InfluxClient
+	db          *sql.DB
 }
 
 func (s *server) mqttInit() error {
@@ -120,6 +123,20 @@ func (s *server) influxInit() error {
 	return err
 }
 
+func (s *server) postgresInit() error {
+	log.Println("Creating PostgreSQL client...")
+	var err error
+	s.db, err = sql.Open("postgres", s.config.Postgres.Connect)
+	if err != nil {
+		return fmt.Errorf("postgres connect: %v", err)
+	}
+	err = s.db.Ping()
+	if err != nil {
+		return fmt.Errorf("postgres ping: %v", err)
+	}
+	return nil
+}
+
 func (s *server) init() error {
 	if err := s.readConfig(); err != nil {
 		return err
@@ -131,6 +148,9 @@ func (s *server) init() error {
 		return err
 	}
 	if err := s.influxInit(); err != nil {
+		return err
+	}
+	if err := s.postgresInit(); err != nil {
 		return err
 	}
 	return nil
@@ -187,6 +207,14 @@ func main() {
 					err := s.influx.InsertLine(v)
 					if err != nil {
 						log.Printf("Error: %s", err.Error())
+					}
+				}
+				if st.Postgres != "" {
+					v := tmpl(st.Postgres, value)
+					log.Printf("POSTGRES: %q", v)
+					_, err := s.db.Exec(v)
+					if err != nil {
+						log.Printf("PostgreSQL: %v", err)
 					}
 				}
 				if value != oldValues[topic] && st.Exec != "" { // do not exec if repeat values
