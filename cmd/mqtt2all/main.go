@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -21,6 +22,7 @@ import (
 )
 
 type server struct {
+	verbose     bool
 	config      typeConfig
 	logFile     *os.File
 	logFileName string
@@ -32,13 +34,17 @@ type server struct {
 
 func (s *server) mqttInit() error {
 	var err error
-	log.Println("Creating MQTT client...")
+	if s.verbose {
+		log.Println("Creating MQTT client...")
+	}
 	mqttAddr := fmt.Sprintf("mqtt://%s:%d", s.config.MQTT.Server, s.config.MQTT.Port)
 	s.mqttClient, err = smarthome.NewMQTTClient(mqttAddr)
 	if err != nil {
 		return err
 	}
-	log.Printf("Subscribing to \"#\"")
+	if s.verbose {
+		log.Printf("Subscribing to \"#\"")
+	}
 	s.mqttChan = s.mqttClient.Subscribe("#")
 	return nil
 }
@@ -117,14 +123,18 @@ func (s *server) writeDebug(message string) {
 }
 
 func (s *server) influxInit() error {
-	log.Println("Creating Influx client...")
+	if s.verbose {
+		log.Println("Creating Influx client...")
+	}
 	var err error
 	s.influx, err = smarthome.NewInfluxClient(s.config.Influx.Addr, s.config.Influx.User, s.config.Influx.Pass, s.config.Influx.Database)
 	return err
 }
 
 func (s *server) postgresInit() error {
-	log.Println("Creating PostgreSQL client...")
+	if s.verbose {
+		log.Println("Creating PostgreSQL client...")
+	}
 	var err error
 	s.db, err = sql.Open("postgres", s.config.Postgres.Connect)
 	if err != nil {
@@ -141,9 +151,11 @@ func (s *server) init() error {
 	if err := s.readConfig(); err != nil {
 		return err
 	}
-	log.Printf("CONFIG: %+v", s.config)
-	log.Printf("Log filename: %q", tmpl(s.config.Logs.Filename, ""))
-	log.Printf("Log prefix: %q", tmpl(s.config.Logs.Prefix, ""))
+	if s.verbose {
+		log.Printf("CONFIG: %+v", s.config)
+		log.Printf("Log filename: %q", tmpl(s.config.Logs.Filename, ""))
+		log.Printf("Log prefix: %q", tmpl(s.config.Logs.Prefix, ""))
+	}
 	if err := s.mqttInit(); err != nil {
 		return err
 	}
@@ -157,13 +169,19 @@ func (s *server) init() error {
 }
 
 func main() {
-	log.Println("mqtt2all starting")
+	var s server
+
+	flag.BoolVar(&s.verbose, "v", false, "be verbose")
+	flag.Parse()
+
+	if s.verbose {
+		log.Println("mqtt2all starting")
+	}
 
 	// SIGHUP handling:
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGHUP)
 
-	var s server
 	if err := s.init(); err != nil {
 		log.Fatal(err)
 	}
@@ -194,32 +212,42 @@ func main() {
 				if value != oldValues[topic] && st.Log != "" { // do not log if repeat values
 					v := tmpl(st.Log, value)
 					s.writeLog(v)
-					log.Printf("LOG: %q", v)
+					if s.verbose {
+						log.Printf("LOG: %q", v)
+					}
 				}
 				if value != oldValues[topic] && st.Debug != "" { // do not log if repeat values
 					v := tmpl(st.Debug, value)
 					s.writeDebug(v)
-					log.Printf("DEBUG: %q", v)
+					if s.verbose {
+						log.Printf("DEBUG: %q", v)
+					}
 				}
 				if st.Influx != "" {
 					v := tmpl(st.Influx, value)
-					log.Printf("INFLUX: %q", v)
+					if s.verbose {
+						log.Printf("INFLUX: %q", v)
+					}
 					err := s.influx.InsertLine(v)
 					if err != nil {
-						log.Printf("Error: %s", err.Error())
+						log.Printf("Influx Insert Error: %s", err.Error())
 					}
 				}
 				if st.Postgres != "" {
 					v := tmpl(st.Postgres, value)
-					log.Printf("POSTGRES: %q", v)
+					if s.verbose {
+						log.Printf("POSTGRES: %q", v)
+					}
 					_, err := s.db.Exec(v)
 					if err != nil {
-						log.Printf("PostgreSQL: %v", err)
+						log.Printf("PostgreSQL Exec Error: %v", err)
 					}
 				}
 				if value != oldValues[topic] && st.Exec != "" { // do not exec if repeat values
 					v := tmpl(st.Exec, value)
-					log.Printf("EXEC: %q", v)
+					if s.verbose {
+						log.Printf("EXEC: %q", v)
+					}
 					arguments := strings.Split(v, " ")
 					cmd := exec.Command(arguments[0], arguments[1:]...)
 					cmd.Run()

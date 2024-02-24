@@ -7,6 +7,8 @@ require (
 	github.com/at-wat/mqtt-go v0.16.0
 	github.com/go-chi/chi/v5 v5.0.4
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/goburrow/modbus v0.1.0
+	github.com/goburrow/serial v0.1.0
 	github.com/google/gopacket v1.1.19
 	github.com/google/uuid v1.3.0
 	github.com/influxdata/influxdb v1.9.5

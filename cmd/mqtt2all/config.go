@@ -42,7 +42,9 @@ type typeConfig struct {
 
 func (s *server) readConfig() error {
 	configFileName := "config.yaml"
-	log.Printf("Reading config file %s", configFileName)
+	if s.verbose {
+		log.Printf("Reading config file %s", configFileName)
+	}
 	s.config = typeConfig{}
 	data, err := ioutil.ReadFile(configFileName)
 	if err != nil {
